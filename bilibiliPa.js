@@ -37,6 +37,12 @@ function Mask(targetNode) {
         textAlign: "center"
       });
     }
+    if (!node._oldStyle) {
+      node._oldStyle = node.style;
+    }
+    if (!this.targetNode._oldStyle) {
+      this.targetNode._oldStyle = this.targetNode.style;
+    }
     setStyles(node, {
       width: "100%",
       height: "100%",
@@ -51,6 +57,12 @@ function Mask(targetNode) {
       top: "0",
       left: "0"
     });
+    setStyles(this.targetNode, {
+      height: "100%",
+      width: "100%",
+      position: "fixed",
+      overflow: "hidden"
+    });
     this.targetNode.appendChild(node);
     logger.log("[mask]:Created");
   };
@@ -58,12 +70,15 @@ function Mask(targetNode) {
   this.clearMask = () => {
     isHidden = true;
     if (this.targetNode.hasChildNodes(node)) {
-      setStyles(node, {
-        width: "0",
-        height: "0",
-        display: "none",
-        background: ""
-      });
+      if (node._oldStyle) {
+        node.style = node._oldStyle;
+        setStyles(node, {
+          display: "none"
+        });
+      }
+      if (this.targetNode._oldStyle) {
+        this.targetNode.style = this.targetNode._oldStyle;
+      }
     }
     logger.log("[mask]:Cleared");
   };
@@ -245,7 +260,7 @@ Ban.prototype._handleNodeCompleted = function(max, delay) {
       this.mask.clearMask();
       logger.log("[ban]:Timeout");
     }
-  }, delay || 5000);
+  }, delay || 3000);
   return (decrease, callback) => {
     if (decrease === true) maxNum--;
     if (i >= maxNum) {
@@ -385,7 +400,8 @@ Ban.prototype.checkId = function(id) {
   return true;
 };
 
-main();
+document.addEventListener("DOMContentLoaded", main);
+
 function main() {
   if (location.hostname.indexOf("bilibili.com") === -1) return;
   var ban = new Ban();
@@ -476,11 +492,6 @@ function main() {
       {
         name: "多少人正在看和实时弹幕",
         element: ".bilibili-player-video-info",
-        once: true
-      },
-      {
-        name: "广告",
-        element: "#activity_vote",
         once: true
       },
       {
