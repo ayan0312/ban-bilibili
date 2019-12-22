@@ -219,7 +219,7 @@ Ban.prototype.timerExec = function(options) {
   var interval = setInterval(function() {
     timeoutNum++;
     if (auto) {
-      if (timeoutNum === (options.max)) {
+      if (timeoutNum === options.max) {
         clearInterval(interval);
       }
     }
@@ -300,10 +300,7 @@ Ban.prototype.removeNodes = function(elements) {
     this.timerExec({
       auto: item.once === true ? item.once : (item.once = false),
       delay: typeof item.delay === "number" ? item.delay : (item.delay = 1000),
-      max:
-        typeof item.max === "number"
-          ? item.max
-          : (item.max = 100),
+      max: typeof item.max === "number" ? item.max : (item.max = 100),
       mount: timer => {
         var data = {
           item,
@@ -388,7 +385,9 @@ Ban.prototype.checkId = function(id) {
   return true;
 };
 
+main();
 function main() {
+  if (location.hostname.indexOf("bilibili.com") === -1) return;
   var ban = new Ban();
   // 个人空间
   ban.pageRegister({
@@ -650,10 +649,3 @@ function main() {
 
   ban.start();
 }
-
-function executeMainFunction() {
-  if (location.hostname.indexOf("bilibili.com") === -1) return;
-  main();
-}
-
-executeMainFunction();
